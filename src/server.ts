@@ -44,11 +44,7 @@ server.on('listening', onListening);
 server.on('error', onError);
 
 mongoose
-  .connect("mongodb://localhost:27017", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-  })
+  .connect("mongodb://localhost:27017")
   .then(() => {
     console.log('Connected to database ' + process.env.MONGO_URI);
     server.listen(port);
