@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { Sexe } from './enseignant.model';
 
 
 export interface IEtudiant {
@@ -8,7 +9,7 @@ export interface IEtudiant {
     email: string;
     password: string;
     dateNaissance: Date;
-    sexe: string;
+    sexe: Sexe;
     niveau: string;
     filiere: string;
     matricule: string;
@@ -70,3 +71,4 @@ const etudiantSchema = new mongoose.Schema({
 const Etudiant = mongoose.model<EtudiantDocument, IEtudiantModel>('Etudiant', etudiantSchema);
 
 export default Etudiant;
+

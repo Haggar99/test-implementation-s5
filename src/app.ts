@@ -5,6 +5,9 @@ const morgan = require('morgan');
 
 const app = express();
 
+const etudiantRouter = require('./routes/etudiant.routes');
+
+
 
 
 
@@ -31,6 +34,9 @@ app.use(
     }
 
 );
+
+app.use('/api/etudiant', etudiantRouter);
+
 
 export default app;
 
