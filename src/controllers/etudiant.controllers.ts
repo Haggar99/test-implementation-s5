@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import bcypt  from "bcrypt";
+import bcrypt  from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import Etudiant, { EtudiantDocument } from "../models/etudiant.model";
@@ -11,11 +11,19 @@ export const creeEtudiant = async (req: Request, res: Response) => {
     const etudiant = req.body;
 
     try {
-        etudiant.matricule = generateMatricule();
-        const hashedPassword = await bcypt.hash(etudiant.password, 10);
+        const etudiantExiste = 
+        await Etudiant
+        .findOne({email: etudiant.email});
+        if(etudiantExiste){
+            res.status(400).json({
+                message: 'Cet etudiant existe deja'
+            });
+        }else {
+        etudiant.matricule = generateMatricule('ETU');
+        const hashedPassword = await bcrypt.hash(etudiant.password, 10);
         etudiant.password = hashedPassword;
         const newEstudiant = new Etudiant(etudiant);
-        // await newEstudiant.save();
+        await newEstudiant.save();
         const token = jwt.sign(
             {
                 userId: newEstudiant._id,
@@ -41,6 +49,7 @@ export const creeEtudiant = async (req: Request, res: Response) => {
             },
             token: token
         });
+        }
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -62,11 +71,21 @@ export const loginEtudiant = async (req: Request, res: Response) => {
                 message: 'Etudiant non trouve'
             });
         }else {
-            const isPasswordValid = await bcypt.compare(estudiantData.password, etudiant.password);
+            const isPasswordValid = await bcrypt.compare(estudiantData.password, etudiant.password);
             if(isPasswordValid){
+                const token = jwt.sign(
+                    {
+                        userId: etudiant._id,
+                        email: etudiant.email,
+                        matricule: etudiant.matricule,
+                    },
+                    'process.env.JWT_SECRET',
+                    { expiresIn: '30d' }
+                )
                 res.status(200).json({
                     message: 'Etudiant connecte avec succes',
-                    etudiant: etudiant
+                    etudiant: etudiant,
+                    token: token
                 });
             }else {
                 res.status(401).json({
@@ -100,7 +119,7 @@ export const getEtudiants = (req: Request, res: Response) => {
 }
 
 export const getEtudiantByMatricule = (req: Request, res: Response) => {
-    const matricule = generateMatricule();
+    const matricule = generateMatricule('ETU');
 
     res.status(200).json({
         message: 'Etudiant trouve avec succes',
@@ -111,12 +130,12 @@ export const getEtudiantByMatricule = (req: Request, res: Response) => {
 
 
 
-export function generateMatricule() {
+export function generateMatricule(mat: string) {
     const date = new Date();
     const matricule = Math
     .floor(Math.random() * 
     (date.getTime()) + 
     (date.getTime()));
-    const etudiantMatricule = 'ETU' + matricule.toString().slice(0, 8);
+    const etudiantMatricule = mat + matricule.toString().slice(0, 8);
     return etudiantMatricule;
 }
