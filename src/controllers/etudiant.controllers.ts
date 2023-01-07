@@ -1,4 +1,7 @@
 import { Request, Response } from "express";
+import bcypt  from "bcrypt";
+import jwt from "jsonwebtoken";
+
 import Etudiant, { EtudiantDocument } from "../models/etudiant.model";
 
 
@@ -8,11 +11,35 @@ export const creeEtudiant = async (req: Request, res: Response) => {
     const etudiant = req.body;
 
     try {
+        etudiant.matricule = generateMatricule();
+        const hashedPassword = await bcypt.hash(etudiant.password, 10);
+        etudiant.password = hashedPassword;
         const newEstudiant = new Etudiant(etudiant);
-        await newEstudiant.save();
+        // await newEstudiant.save();
+        const token = jwt.sign(
+            {
+                userId: newEstudiant._id,
+                email: newEstudiant.email,
+                matricule: newEstudiant.matricule,
+            },
+            "process.env.JWT_SECRET",
+            { expiresIn: '30d' }
+        );
         res.status(201).json({
             message: 'Etudiant cree avec succes',
-            etudiant: newEstudiant
+            etudiant: {
+                _id: newEstudiant._id,
+                nom: newEstudiant.nom,
+                prenom: newEstudiant.prenom,
+                email: newEstudiant.email,
+                dateNaissance: newEstudiant.dateNaissance,
+                sexe: newEstudiant.sexe,
+                niveau: newEstudiant.niveau,
+                filiere: newEstudiant.filiere,
+                matricule: newEstudiant.matricule,
+                createdAt: newEstudiant.createdAt,
+            },
+            token: token
         });
     } catch (error) {
         console.log(error);
@@ -35,7 +62,8 @@ export const loginEtudiant = async (req: Request, res: Response) => {
                 message: 'Etudiant non trouve'
             });
         }else {
-            if(etudiant.password === estudiantData.password){
+            const isPasswordValid = await bcypt.compare(estudiantData.password, etudiant.password);
+            if(isPasswordValid){
                 res.status(200).json({
                     message: 'Etudiant connecte avec succes',
                     etudiant: etudiant
@@ -69,4 +97,26 @@ export const getEtudiants = (req: Request, res: Response) => {
             message: 'Erreur serveur' + error
         })
     })
+}
+
+export const getEtudiantByMatricule = (req: Request, res: Response) => {
+    const matricule = generateMatricule();
+
+    res.status(200).json({
+        message: 'Etudiant trouve avec succes',
+        matricule: matricule,
+        date: Date.now().toString().length
+    })
+}
+
+
+
+export function generateMatricule() {
+    const date = new Date();
+    const matricule = Math
+    .floor(Math.random() * 
+    (date.getTime()) + 
+    (date.getTime()));
+    const etudiantMatricule = 'ETU' + matricule.toString().slice(0, 8);
+    return etudiantMatricule;
 }
