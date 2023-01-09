@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Sexe } from './enseignant.model';
+import { Sexe, Status } from './enseignant.model';
 
 
 export interface IEtudiant {
@@ -13,6 +13,7 @@ export interface IEtudiant {
     niveau: string;
     filiere: string;
     matricule: string;
+    status: Status;
     createdAt: Date;
     updatedAt: Date;
 }
