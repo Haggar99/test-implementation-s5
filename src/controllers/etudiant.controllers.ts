@@ -101,21 +101,37 @@ export const loginEtudiant = async (req: Request, res: Response) => {
     }
 }
 
-export const getEtudiants = (req: Request, res: Response) => {
-    
-    Etudiant.find()
-    .then(
-        (etudiants: EtudiantDocument[]) => {
-            res.status(201).json({
-                message: 'Etudiants trouves avec succes',
-                etudiants: etudiants
-            })
-        }
-    ).catch(error => {
+export const getEtudiants = async (req: Request, res: Response) => {
+
+    try {
+        const estudiants: EtudiantDocument[] = await Etudiant.find();
+        const tolal = Etudiant.countDocuments();
+
+        res.status(200).json({
+            message: 'La liste de tous les etudiants',
+            estudiants: estudiants,
+            total: tolal
+        })
+        
+    } catch (error) {
         res.status(500).json({
             message: 'Erreur serveur' + error
         })
-    })
+    }
+    
+    // Etudiant.find()
+    // .then(
+    //     (etudiants: EtudiantDocument[]) => {
+    //         res.status(201).json({
+    //             message: 'Etudiants trouves avec succes',
+    //             etudiants: etudiants
+    //         })
+    //     }
+    // ).catch(error => {
+    //     res.status(500).json({
+    //         message: 'Erreur serveur' + error
+    //     })
+    // })
 }
 
 export const getEtudiantByMatricule = (req: Request, res: Response) => {
