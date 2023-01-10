@@ -63,6 +63,11 @@ const etudiantSchema = new mongoose.Schema({
     matricule: {
         type: String,
         required: true
+    },
+    status: {
+        type: String,
+        enum: [Status.Actif, Status.Inactif],
+        default: Status.Actif
     }
 }, {
     timestamps: true

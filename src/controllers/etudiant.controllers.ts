@@ -12,8 +12,6 @@ import Etudiant, { EtudiantDocument } from "../models/etudiant.model";
 
 import { Status } from "../models/enseignant.model";
 
-
-
 export const creeEtudiant = async (req: Request, res: Response) => {
     // on recupere les donnees de l'etudiant depuis le corps de la requete
     const etudiant = req.body;
@@ -142,7 +140,7 @@ export const getEtudiants = async (req: Request, res: Response) => {
         // La fonction countDocuments() retourne le nombre total d'objets
         // par exemple: Etudiant.countDocuments()
         // il nous retourne le nombre total d'etudiants
-        const tolal = Etudiant.countDocuments();
+        const tolal = await Etudiant.countDocuments();
         res.status(200).json({
             message: 'La liste de tous les etudiants',
             estudiants: estudiants,
@@ -201,16 +199,28 @@ export const changeStatusEtudiant = async (req: Request, res: Response) => {
     const matricule = req.params.matricule;
     const status = req.body.status;
     try {
-        // Etudiant.findOneAndUpdate(
+        // const etudiant = await Etudiant.findOneAndUpdate(
         //     {matricule: matricule},
-        //     {status: status? status: Status.Actif},
+        //     {status: status},
         // )
-        const etudiant: EtudiantDocument = 
-        await Etudiant
-        .findOne({matricule: matricule});
+        
+        // res.status(201).json({
+        //     message: 'Etudiant a ete modifie avec succes',
+        //     etudiant: etudiant
+        // });
+
+        const etudiant: EtudiantDocument = await 
+        Etudiant.findOne({matricule: matricule});
         if(etudiant){
             etudiant.status = status? status: Status.Actif;
-            etudiant.save();
+            
+            console.log(status);
+            console.log("Nouveau status: " + etudiant.status);
+            await etudiant.save();
+            res.status(201).json({
+                message: 'Etudiant a ete modifie avec succes',
+                etudiant: etudiant
+            });
         }else {
             res.status(404).json({
                 message: 'Etudiant non trouvé!'
@@ -240,6 +250,15 @@ export const updatePasswordEtudiant = async (req: Request, res: Response) => {
         if(isPasswordValid){
         // on crypte le mot de passe de l'etudiant avec la fonction hash de bcrypt
         const hashedPassword = await bcrypt.hash(newPassword, 10);
+        etudiant.password = hashedPassword;
+        await etudiant.save();
+        res.status(200).json({
+            message: 'Mot de passe a été modifie avec succes'
+        })
+        }else {
+            res.status(401).json({
+                message: 'Mot de passe incorrect'
+            })
         }
         
     } catch (error) {
@@ -250,9 +269,138 @@ export const updatePasswordEtudiant = async (req: Request, res: Response) => {
 }
 
 
+export const updateEtudiant = async (req: Request, res: Response) => {
+    const userId = req.params.userId;
+    const etudiantData = req.body;
+
+    try {
+        const etudiant: EtudiantDocument = 
+        await Etudiant.findById(userId);
+        if(etudiant){
+            await Etudiant
+            .findOneAndUpdate(
+                {_id: etudiantData.userId},
+                {
+                    ...etudiantData
+                }
+            )
+            res.status(200).json({
+                message: 'Etudiant a été modifie avec succes',
+                ...etudiantData
+            });
+        }else {
+            res.status(404).json({
+                message: 'Etudiant non trouve'
+            });
+        }
+        
+    } catch (error) {
+        res.status(500).json({
+            message: 'Erreur serveur' + error
+        }) 
+    }
+}
+// export const deleteEstudiant = async (req: Request, res: Response) => {
+//     delet(
+//         req, 
+//         res, 
+//         {matricule: req.params.matricule}, 
+//         Etudiant,
+//         'Etudiant a été supprime avec succes'
+//         )
+// }
+// export async function delet(req: Request, res: Response,
+//     filter: {},
+//     schema: any,
+//     message: string
+//     ) {
+    
+//         // const matricule = req.params.matricule;
+//         try{
+//             // La fonction findOneAndDelete retourne l'objet supprime
+//             // et supprime l'objet en question de la base de donnée 
+//             await schema.findOneAndDelete(filter);
+    
+//             res.status(200).json({
+//                 message: message
+//             });
+//         }catch(error) {
+//             res.status(500).json({
+//                 message: 'Une erreur '+ error
+//             })
+//         }
+// }
+
+export const deletEtudiant = async (req: Request, res: Response) => {
+    try {
+        await Etudiant.findOneAndDelete({matricule: req.params.matricule});
+        res.status(200).json({
+            message: 'Etudiant a été supprime avec succes'
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Une erreur '+ error
+        })
+    }
+}
+
+export const filtrerEtudiant = async (req: Request, res: Response) => {
+    const nom = req.query.nom;
+    const prenom = req.query.prenom;
+    const matricule = req.query.matricule;
+    const status = req.query.status;
+    const niveau = req.query.niveau;
+    const email = req.query.email;
+    let filtre = {};
+
+    if(nom){
+        filtre = {...filtre, nom: nom}
+    }
+    if(prenom){
+        filtre = {...filtre, prenom: prenom}
+    }
+    if(matricule){
+        filtre = {...filtre, matricule: matricule}
+    }
+    if(status){
+        filtre = {...filtre, status: status}
+    }
+    if(niveau){
+        filtre = {...filtre, niveau: niveau}
+    }
+    if(email){
+        filtre = {...filtre, email: email}
+    }
+
+    try {
+        const etudiants = await Etudiant.find(filtre);
+        res.status(200).json({
+            message: 'Etudiants trouves',
+            etudiants: etudiants
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            message: 'Une erreur '+ error
+        })
+    }
+}
 
 
+// delete all documents 
 
+export const deleteAll = async (req: Request, res: Response) => {
+    try {
+        await Etudiant.deleteMany({});
+        res.status(200).json({
+            message: 'Tous les etudiants ont ete supprime avec succes'
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Une erreur '+ error
+        })
+    }
+}
 
 
 
