@@ -277,16 +277,18 @@ export const updateEtudiant = async (req: Request, res: Response) => {
         const etudiant: EtudiantDocument = 
         await Etudiant.findById(userId);
         if(etudiant){
-            await Etudiant
-            .findOneAndUpdate(
-                {_id: etudiantData.userId},
-                {
-                    ...etudiantData
-                }
+            // Pour modifier ou mettre a jour un objet ou un document au niveau de la 
+            // base de donnees, on utilise la fonction updateOne
+            // pour mettre a jour plusieurs objet a la fois on utilise 
+            // updateMany
+
+            await Etudiant.updateOne(
+                {_id: userId},
+                etudiantData
             )
             res.status(200).json({
                 message: 'Etudiant a été modifie avec succes',
-                ...etudiantData
+                etudiantData
             });
         }else {
             res.status(404).json({
@@ -333,6 +335,8 @@ export const updateEtudiant = async (req: Request, res: Response) => {
 
 export const deletEtudiant = async (req: Request, res: Response) => {
     try {
+        // La fonction findOneAndDelete retourne l'objet supprime
+        // et supprime l'objet en question de la base de donnée
         await Etudiant.findOneAndDelete({matricule: req.params.matricule});
         res.status(200).json({
             message: 'Etudiant a été supprime avec succes'
@@ -343,6 +347,8 @@ export const deletEtudiant = async (req: Request, res: Response) => {
         })
     }
 }
+
+// la fonction de filtrage
 
 export const filtrerEtudiant = async (req: Request, res: Response) => {
     const nom = req.query.nom;
@@ -391,6 +397,8 @@ export const filtrerEtudiant = async (req: Request, res: Response) => {
 
 export const deleteAll = async (req: Request, res: Response) => {
     try {
+        // La fonction deleteMany supprime plusieurs documents
+        // en fonction de leurs condition
         await Etudiant.deleteMany({});
         res.status(200).json({
             message: 'Tous les etudiants ont ete supprime avec succes'

@@ -40,16 +40,16 @@ const coursSchema = new mongoose.Schema({
     },
     semestre: {
         type: String,
-        required: true
+        required: false
     },
     anneeScolaire: {
         type: String,
-        required: true
+        required: false
     },
     enseignant: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Enseignant',
-        required: true
+        required: false
     },
     etudiants: [{
         type: mongoose.Schema.Types.ObjectId,

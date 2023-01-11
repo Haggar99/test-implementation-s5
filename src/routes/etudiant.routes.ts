@@ -19,6 +19,10 @@ etudiantRouter.put('/change-password/:userId', EtudiantController.updatePassword
 // La route pour mettre a jour les informations de l'etudiant
 etudiantRouter.put('/update/:userId', EtudiantController.updateEtudiant);
 
+// la route pour supprimer un etudiant de la base de donnée
+
+etudiantRouter.delete('/delete/:matricule', EtudiantController.deletEtudiant);
+
 etudiantRouter.get('/:matricule', EtudiantController.getEtudiantByMatricule);
 
 

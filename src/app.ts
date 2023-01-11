@@ -6,7 +6,10 @@ const morgan = require('morgan');
 const app = express();
 
 const etudiantRouter = require('./routes/etudiant.routes');
+const enseignantRouter = require('./routes/enseignant.routes');
+const adminRouter = require('./routes/admin.routes');
 
+const coursRouter = require('./routes/cours.routes');
 
 
 
@@ -36,6 +39,9 @@ app.use(
 );
 
 app.use('/api/etudiant', etudiantRouter);
+app.use('/api/enseignant', enseignantRouter);
+app.use('/api/admin', adminRouter);
+app.use(coursRouter);
 
 
 export default app;

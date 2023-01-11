@@ -59,10 +59,10 @@ const enseignantSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        required: true
+        required: false
     },
     sexe: {
-        type: Sexe,
+        type: String,
         required: true
     },
     matricule: {
@@ -79,15 +79,15 @@ const enseignantSchema = new mongoose.Schema({
     },
     grade: {
         type: Grade,
-        required: true
+        required: false
     },
     status: {
-        type: Status,
+        type: String,
         required: true
     },
     type: {
         type: TypeEnseignant,
-        required: true
+        required: false
     }
 }, {
     timestamps: true
