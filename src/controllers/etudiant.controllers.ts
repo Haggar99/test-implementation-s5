@@ -107,7 +107,7 @@ export const loginEtudiant = async (req: Request, res: Response) => {
                         email: etudiant.email,
                         matricule: etudiant.matricule,
                     },
-                    'process.env.JWT_SECRET',
+                    'etudiant1234',
                     { expiresIn: '30d' }
                 )
                 res.status(200).json({
@@ -236,11 +236,11 @@ export const changeStatusEtudiant = async (req: Request, res: Response) => {
 
 
 export const updatePasswordEtudiant = async (req: Request, res: Response) => {
-    // const userId = req.userData.userId;
-    const userId = req.params.userId;
+    const userId = (req as any).userData.userId;
+    // const userId = req.params.userId;
     const oldPassword = req.body.oldPassword;
     const newPassword = req.body.newPassword;
-
+    console.log("userdata: ", (req as any).userData);
     try {
         // la fonction findById retourne un objet a travers son id
         const etudiant: EtudiantDocument = 

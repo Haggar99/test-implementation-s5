@@ -1,6 +1,8 @@
 import express from 'express';
 const etudiantRouter = express.Router();
 const EtudiantController = require('../controllers/etudiant.controllers');
+import *as CheckAuthEtudiant from '../middlewares/etudiant.middleware';
+import *as CheckAuthEnseignant from '../middlewares/enseignant.middleware'
 
 
 etudiantRouter.post('/create', EtudiantController.creeEtudiant);
@@ -14,7 +16,10 @@ etudiantRouter.delete('/delete', EtudiantController.deleteAll);
 etudiantRouter.put('/change-status/:matricule', EtudiantController.changeStatusEtudiant);
 
 // La route pour changer le mot de passe 
-etudiantRouter.put('/change-password/:userId', EtudiantController.updatePasswordEtudiant);
+etudiantRouter.put(
+    '/change-password', 
+    CheckAuthEtudiant.checkAuthEtudiant,
+    EtudiantController.updatePasswordEtudiant);
 
 // La route pour mettre a jour les informations de l'etudiant
 etudiantRouter.put('/update/:userId', EtudiantController.updateEtudiant);
@@ -23,7 +28,9 @@ etudiantRouter.put('/update/:userId', EtudiantController.updateEtudiant);
 
 etudiantRouter.delete('/delete/:matricule', EtudiantController.deletEtudiant);
 
-etudiantRouter.get('/:matricule', EtudiantController.getEtudiantByMatricule);
+etudiantRouter.get('/:matricule',
+     CheckAuthEnseignant.checkAuthEnseignant, 
+    EtudiantController.getEtudiantByMatricule);
 
 
 module.exports = etudiantRouter;

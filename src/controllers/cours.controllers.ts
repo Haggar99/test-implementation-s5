@@ -41,8 +41,24 @@ export const affectEtudiant = async (req:Request, res:Response)=>{
     const etudiants = req.body.etudiants;
     const cours = await Cours.findOne({code:code})
     if(cours){
+        cours.etudiants.push(...etudiants);
+        await cours.save()
+        res.json(cours);
+        
 
     }
 
+}
+
+export const getCours = (req: Request, res: Response) => {
+    const code = req.params.code;
+
+    Cours
+    .findOne({code: code})
+    .populate('etudiants')
+    .populate('enseignant')
+    .then((cours)=>{
+        res.json({cours: cours})
+    })
 }
 
